@@ -44,4 +44,4 @@ app.get('/', (req, res) => {
 })
 
 app.listen(process.env.PORT || port)
-module.exports = app;
+// module.exports = app;
