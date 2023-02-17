@@ -28,7 +28,12 @@ async function run() {
         const MemberCollection = client.db("PhotohouseBD").collection("members");
         const MagazinesCollection = client.db("PhotohouseBD").collection("magazines");
         const galleryCollection = client.db("PhotohouseBD").collection("gallery");
+        const homeSliderCollection = client.db("PhotohouseBD").collection("home_slider_images");
 
+        app.get("/home_slider_images", async (req, res) => {
+            const result = await homeSliderCollection.find({}).toArray();
+            res.send(result);
+        });
         app.get("/gallery", async (req, res) => {
             const result = await galleryCollection.find({}).toArray();
             res.send(result);
