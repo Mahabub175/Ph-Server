@@ -43,35 +43,42 @@ async function run() {
         const MemberCollection = client.db("PhotohouseBD").collection("members");
         const MagazinesCollection = client.db("PhotohouseBD").collection("magazines");
         const galleryCollection = client.db("PhotohouseBD").collection("gallery_collection");
-        const homeSliderCollection = client.db("PhotohouseBD").collection("home_slider_images");
 
-        app.get("/home_slider_images", async (req, res) => {
-            const result = await homeSliderCollection.find({}).toArray();
-            res.send(result);
-        });
-        app.get("/gallery", async (req, res) => {
-            const result = await galleryCollection.find({}).toArray();
-            res.send(result);
+        // app.get("/home_slider_images", async (req, res) => {
+        //     const result = await homeSliderCollection.find({}).toArray();
+        //     res.send(result);
+        // });
+        // app.get("/gallery", async (req, res) => {
+        //     const result = await galleryCollection.find({}).toArray();
+        //     res.send(result);
+        // });
+        // app.get("/redirect_links", async (req, res) => {
+        //     const result = await collection.find({}).toArray();
+        //     res.send(result[0]);
+        // });
+        // app.get("/magazines", async (req, res) => {
+        //     const result = await MagazinesCollection.find({}).toArray();
+        //     res.send(result);
+        // });
+        app.get("/all", async (req, res) => {
+            const redirect_links = await collection.find({}).toArray();
+            const Magazines = await MagazinesCollection.find({}).toArray();
+            const gallery = await galleryCollection.find({}).toArray();
+            res.send({ links: redirect_links[0], Magazines, gallery });
         });
         app.post('/gallery', (req, res) => {
-            galleryCollection.insertOne(req.body).then(response => res.send({ isSuccess: true, message: 'gallery image is successfully added!' }))
+            galleryCollection.insertOne(req.body).then(response => res.send({ isSuccess: true, message: 'Gallery image is successfully added!' }))
         })
-        app.get("/redirect_links", async (req, res) => {
-            const result = await collection.find({}).toArray();
-            res.send(result[0]);
-        });
-        app.post('/regn_memeber', (req, res) => {
-            const file = req.files.file;
-            const newImg = file.data;
-            const encImg = newImg.toString('base64');
-            var image = { contentType: file.mimetype, size: file.size, img: Buffer.from(encImg, 'base64') };
-
-            MemberCollection.insertOne({ ...req.body, image }).then(response => res.send({ isSuccess: true, message: 'Member is successfully registered!' }))
+        app.post('/magazine', (req, res) => {
+            MagazinesCollection.insertOne(req.body).then(response => res.send({ isSuccess: true, message: 'Magazine is successfully uploaded!' }))
         })
-        app.get("/magazines", async (req, res) => {
-            const result = await MagazinesCollection.find({}).toArray();
-            res.send(result);
-        });
+        // app.post('/regn_memeber', (req, res) => {
+        //     const file = req.files.file;
+        //     const newImg = file.data;
+        //     const encImg = newImg.toString('base64');
+        //     var image = { contentType: file.mimetype, size: file.size, img: Buffer.from(encImg, 'base64') };
+        //     MemberCollection.insertOne({ ...req.body, image }).then(response => res.send({ isSuccess: true, message: 'Member is successfully registered!' }))
+        // })
         console.log("Connected successfully to server");
     } finally {
         // Ensures that the client will close when you finish/error
