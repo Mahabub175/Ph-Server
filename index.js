@@ -7,12 +7,14 @@ require('dotenv').config()
 const { MongoClient, ServerApiVersion, ObjectID } = require('mongodb');
 
 const app = express();
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-});
-app.use(cors({ origin: '*', optionsSuccessStatus: 200 }));
+// app.use(function (req, res, next) {
+//     res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+//     res.header("Access-Control-Allow-Headers", "Content-Type");
+//     next();
+// });
+app.use(cors({
+    origin: '*'
+}));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static('./uploads'))
@@ -21,6 +23,13 @@ const storage = multer.diskStorage({
     filename: function (req, file, cb) { cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname)); },
 });
 const upload = multer({ storage: storage });
+app.post('/upload', upload.single('image'), (req, res) => {
+    try {
+        res.status(200).json({ message: 'File uploaded successfully', url: req.file.filename });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to upload file' });
+    }
+});
 const port = 5000;
 const uri = "mongodb+srv://Photohouse:X4rfPrPyy0wHWjkX@cluster0.h9calhb.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
@@ -31,13 +40,6 @@ async function run() {
         const MagazinesCollection = client.db("PhotohouseBD").collection("magazines");
         const galleryCollection = client.db("PhotohouseBD").collection("gallery_collection");
 
-        app.post('/upload', upload.single('image'), (req, res) => {
-            try {
-                res.status(200).json({ message: 'File uploaded successfully', url: req.file.filename });
-            } catch (error) {
-                res.status(500).json({ message: 'Failed to upload file' });
-            }
-        });
         // app.get("/home_slider_images", async (req, res) => {
         //     const result = await homeSliderCollection.find({}).toArray();
         //     res.send(result);
