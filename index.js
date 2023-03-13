@@ -7,22 +7,20 @@ require('dotenv').config()
 const { MongoClient, ServerApiVersion, ObjectID } = require('mongodb');
 
 const app = express();
-// app.use(function (req, res, next) {
-//     res.header("Access-Control-Allow-Origin", "http://localhost:3000");
-//     res.header("Access-Control-Allow-Headers", "Content-Type");
-//     next();
-// });
-app.use(cors({
-    origin: '*'
-}));
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(cors({ origin: '*' }));
+app.use(function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Content-Type");
+    next();
+});
+app.use(bodyParser.json({ limit: '5mb' }));
+app.use(bodyParser.urlencoded({ limit: '5mb', extended: true }));
 app.use(express.static('./uploads'))
 const storage = multer.diskStorage({
     destination: function (req, file, cb) { cb(null, 'uploads/'); },
     filename: function (req, file, cb) { cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname)); },
 });
-const upload = multer({ storage: storage });
+const upload = multer({ storage: storage, limits: { fileSize: 5 * 1024 * 1024 } });
 app.post('/upload', upload.single('image'), (req, res) => {
     try {
         res.status(200).json({ message: 'File uploaded successfully', url: req.file.filename });
