@@ -59,22 +59,6 @@ async function run() {
       .db("PhotohouseBD")
       .collection("gallery_collection");
 
-    // app.get("/home_slider_images", async (req, res) => {
-    //     const result = await homeSliderCollection.find({}).toArray();
-    //     res.send(result);
-    // });
-    // app.get("/gallery", async (req, res) => {
-    //     const result = await galleryCollection.find({}).toArray();
-    //     res.send(result);
-    // });
-    // app.get("/redirect_links", async (req, res) => {
-    //     const result = await collection.find({}).toArray();
-    //     res.send(result[0]);
-    // });
-    // app.get("/magazines", async (req, res) => {
-    //     const result = await MagazinesCollection.find({}).toArray();
-    //     res.send(result);
-    // });
     app.get("/all", async (req, res) => {
       const redirect_links = await collection.find({}).toArray();
       const Magazines = await MagazinesCollection.find({}).toArray();
@@ -82,22 +66,24 @@ async function run() {
       const homeSliderImgs = await galleryCollection
         .find({ isHomeSlider: true })
         .toArray();
+      const specialMagazineImgs = await MagazinesCollection.find({
+        isSpecial: true,
+      }).toArray();
       res.send({
         links: redirect_links[0],
         Magazines,
         gallery,
         homeSliderImgs,
+        specialMagazineImgs,
       });
     });
     app.post("/gallery", (req, res) => {
-      galleryCollection
-        .insertOne(req.body)
-        .then((response) =>
-          res.send({
-            isSuccess: true,
-            message: "Gallery image is successfully added!",
-          })
-        );
+      galleryCollection.insertOne(req.body).then((response) =>
+        res.send({
+          isSuccess: true,
+          message: "Gallery image is successfully added!",
+        })
+      );
     });
     app.post("/magazines", (req, res) => {
       MagazinesCollection.insertOne(req.body).then((response) =>
@@ -107,13 +93,6 @@ async function run() {
         })
       );
     });
-    // app.post('/regn_memeber', (req, res) => {
-    //     const file = req.files.file;
-    //     const newImg = file.data;
-    //     const encImg = newImg.toString('base64');
-    //     var image = { contentType: file.mimetype, size: file.size, img: Buffer.from(encImg, 'base64') };
-    //     MemberCollection.insertOne({ ...req.body, image }).then(response => res.send({ isSuccess: true, message: 'Member is successfully registered!' }))
-    // })
     console.log("Connected successfully to server");
   } finally {
     // await client.close();
