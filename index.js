@@ -68,7 +68,9 @@ async function run() {
         .toArray();
       const specialMagazineImgs = await MagazinesCollection.find({
         isSpecial: true,
-      }).toArray();
+      })
+        .sort(-1)
+        .toArray();
       res.send({
         links: redirect_links[0],
         Magazines,
