@@ -61,16 +61,16 @@ async function run() {
 
     app.get("/all", async (req, res) => {
       const redirect_links = await collection.find({}).toArray();
-      const Magazines = await MagazinesCollection.find({}).toArray();
+      const Magazines = await MagazinesCollection.find({})
+        .sort({ _id: -1 })
+        .toArray();
       const gallery = await galleryCollection.find({}).toArray();
       const homeSliderImgs = await galleryCollection
         .find({ isHomeSlider: true })
         .toArray();
       const specialMagazineImgs = await MagazinesCollection.find({
         isSpecial: true,
-      })
-        .sort(-1)
-        .toArray();
+      }).toArray();
       res.send({
         links: redirect_links[0],
         Magazines,
