@@ -58,6 +58,9 @@ async function run() {
     const galleryCollection = client
       .db("PhotohouseBD")
       .collection("gallery_collection");
+    const interviewsCollection = client
+      .db("PhotohouseBD")
+      .collection("interviews");
 
     app.get("/all", async (req, res) => {
       const redirect_links = await collection.find({}).toArray();
@@ -95,6 +98,58 @@ async function run() {
         })
       );
     });
+
+    // POST interview
+    app.post(
+      "/interviews",
+      upload.single("thumbnail_image"),
+      async (req, res) => {
+        try {
+          const { title, content, short_descriptions } = req.body;
+          const slug =
+            title.toLowerCase().replace(/ /g, "-") + "-" + Date.now();
+          const interview = {
+            thumbnail_image: req.file.filename,
+            title,
+            content,
+            short_descriptions,
+            slug,
+          };
+          await interviewsCollection.insertOne(interview);
+          res
+            .status(200)
+            .json({ message: "Interview added successfully", slug });
+        } catch (error) {
+          res.status(500).json({ message: "Failed to add interview" });
+        }
+      }
+    );
+
+    // GET all interviews
+    app.get("/interviews", async (req, res) => {
+      try {
+        const interviews = await interviewsCollection.find({}).toArray();
+        res.status(200).json(interviews);
+      } catch (error) {
+        res.status(500).json({ message: "Failed to get interviews" });
+      }
+    });
+
+    // GET interview by slug
+    app.get("/interviews/:slug", async (req, res) => {
+      try {
+        const { slug } = req.params;
+        const interview = await interviewsCollection.findOne({ slug });
+        if (interview) {
+          res.status(200).json(interview);
+        } else {
+          res.status(404).json({ message: "Interview not found" });
+        }
+      } catch (error) {
+        res.status(500).json({ message: "Failed to get interview" });
+      }
+    });
+
     console.log("Connected successfully to server");
   } finally {
     // await client.close();
