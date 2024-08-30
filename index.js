@@ -105,7 +105,8 @@ async function run() {
       upload.single("thumbnail_image"),
       async (req, res) => {
         try {
-          const { title, content, interviewer_name } = req.body;
+          const { title, content, interviewer_name, interviewee_profession } =
+            req.body;
 
           const timestamp = new Date();
           const slug =
@@ -116,6 +117,7 @@ async function run() {
             title,
             content,
             interviewer_name,
+            interviewee_profession,
             slug,
             created_at: timestamp,
           };
