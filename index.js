@@ -105,21 +105,28 @@ async function run() {
       upload.single("thumbnail_image"),
       async (req, res) => {
         try {
-          const { title, content, short_descriptions } = req.body;
+          const { title, content, interviewer_name } = req.body;
+
+          const timestamp = new Date();
           const slug =
             title.toLowerCase().replace(/ /g, "-") + "-" + Date.now();
+
           const interview = {
-            thumbnail_image: req.file.filename,
+            thumbnail_image: req.file ? req.file.filename : null,
             title,
             content,
-            short_descriptions,
+            interviewer_name,
             slug,
+            created_at: timestamp,
           };
+
           await interviewsCollection.insertOne(interview);
+
           res
             .status(200)
             .json({ message: "Interview added successfully", slug });
         } catch (error) {
+          console.error("Error adding interview:", error);
           res.status(500).json({ message: "Failed to add interview" });
         }
       }
@@ -147,6 +154,25 @@ async function run() {
         }
       } catch (error) {
         res.status(500).json({ message: "Failed to get interview" });
+      }
+    });
+
+    // DELETE interview by id
+    app.delete("/interviews/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+
+        const result = await interviewsCollection.deleteOne({
+          _id: new ObjectID(id),
+        });
+
+        if (result.deletedCount === 1) {
+          res.status(200).json({ message: "Interview deleted successfully" });
+        } else {
+          res.status(404).json({ message: "Interview not found" });
+        }
+      } catch (error) {
+        res.status(500).json({ message: "Failed to delete interview" });
       }
     });
 
